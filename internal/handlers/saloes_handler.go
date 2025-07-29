@@ -3,10 +3,13 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/emaildoissa/agenda-flow/internal/models"
+	"github.com/go-chi/chi/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -78,5 +81,51 @@ func (h *SaloesHandler) CreateSalao(w http.ResponseWriter, r *http.Request) {
 	salao.HashSenha = "" // Limpamos o hash antes de enviar a resposta
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated) // Status 201 Created
+	json.NewEncoder(w).Encode(salao)
+}
+
+// GetSalaoByID busca um salão pelo seu ID.
+func (h *SaloesHandler) GetSalaoByID(w http.ResponseWriter, r *http.Request) {
+	// 1. Pegar o ID da URL. O chi nos ajuda a fazer isso facilmente.
+	idStr := chi.URLParam(r, "idSalao")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "ID inválido", http.StatusBadRequest)
+		return
+	}
+
+	// 2. Buscar o salão no banco de dados
+	var salao models.Salao
+	sqlStatement := `
+		SELECT id, nome_salao, email_proprietario, whatsapp_notificacao, horarios_funcionamento, criado_em
+		FROM saloes
+		WHERE id = $1`
+
+	row := h.DB.QueryRowContext(r.Context(), sqlStatement, id)
+	err = row.Scan(
+		&salao.ID,
+		&salao.NomeSalao,
+		&salao.EmailProprietario,
+		&salao.WhatsappNotificacao,
+		&salao.HorariosFuncionamento,
+		&salao.CriadoEm,
+	)
+
+	if err != nil {
+		// Se o erro for 'sql.ErrNoRows', significa que não encontramos o salão.
+		// Retornamos um erro 404 Not Found, que é o correto.
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "Salão não encontrado", http.StatusNotFound)
+		} else {
+			// Para qualquer outro erro, é um problema no servidor.
+			log.Printf("Erro ao buscar salão: %v", err)
+			http.Error(w, "Erro interno do servidor", http.StatusInternalServerError)
+		}
+		return
+	}
+
+	// 3. Responder com o JSON do salão encontrado
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK) // Status 200 OK
 	json.NewEncoder(w).Encode(salao)
 }

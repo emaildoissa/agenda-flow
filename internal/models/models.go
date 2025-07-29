@@ -8,7 +8,7 @@ type Salao struct {
 	ID                    int       `json:"id"`
 	NomeSalao             string    `json:"nome_salao"`
 	EmailProprietario     string    `json:"email_proprietario"`
-	HashSenha             string    `json:"-"` // O hífen evita que a senha seja exposta em JSON
+	HashSenha             string    `json:"senha"`
 	WhatsappNotificacao   string    `json:"whatsapp_notificacao"`
 	HorariosFuncionamento []byte    `json:"horarios_funcionamento"` // Representado como JSON raw
 	CriadoEm              time.Time `json:"criado_em"`

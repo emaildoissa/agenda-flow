@@ -1,0 +1,59 @@
+### Criar um novo salão
+POST http://localhost:8080/saloes
+Content-Type: application/json
+
+{
+    "nome_salao": "Barbearia Estilo Clássico",
+    "email_proprietario": "contato@estiloclassico.com",
+    "senha": "outrasenha456",
+    "whatsapp_notificacao": "5521988887777"
+}
+
+### Adicionar um novo serviço ao salão com ID 1
+POST http://localhost:8080/saloes/1/servicos
+Content-Type: application/json
+
+{
+    "nome": "Corte Masculino com Tesoura",
+    "duracao_minutos": 45,
+    "preco": 50.00
+}
+
+### Adicionar outro serviço ao mesmo salão
+POST http://localhost:8080/saloes/1/servicos
+Content-Type: application/json
+
+{
+    "nome": "Barba Terapia",
+    "duracao_minutos": 30,
+    "preco": 40.00
+}
+
+### Listar todos os serviços do salão com ID 1
+GET http://localhost:8080/saloes/1/servicos
+
+### Buscar um salão pelo ID
+GET http://localhost:8080/saloes/1
+
+Get http://localhost:8080/healthcheck
+
+
+### 1. Cliente solicita um novo agendamento
+POST http://localhost:8080/agendamentos
+Content-Type: application/json
+
+{
+    "salao_id": 1,
+    "servico_id": 1,
+    "cliente_nome": "Mariana Lima",
+    "cliente_contato": "5511977776666",
+    "data_hora_inicio": "2025-08-15T10:00:00Z"
+}
+
+### 2. Dono do salão confirma (simulação do n8n)
+# Supondo que o agendamento acima tenha criado o ID 1
+PUT http://localhost:8080/agendamentos/1/confirmar
+
+### 3. Dono do salão cancela (simulação do n8n)
+# Supondo que outro agendamento tenha criado o ID 2
+PUT http://localhost:8080/agendamentos/2/cancelar

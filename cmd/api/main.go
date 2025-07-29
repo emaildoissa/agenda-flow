@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/emaildoissa/agenda-flow/internal/handlers"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -28,12 +29,36 @@ func main() {
 	r.Use(middleware.Logger)    // Middleware para logar as requisições
 	r.Use(middleware.Recoverer) // Middleware para recuperar de panics
 
+	servicosHandler := handlers.NewServicosHandler(db)
+
+	agendamentosHandler := handlers.NewAgendamentosHandler(db)
+
+	// Rota pública para criar uma solicitação de agendamento
+	r.Post("/agendamentos", agendamentosHandler.CreateAgendamento)
+
+	// Rotas "internas" para o n8n usar
+	r.Put("/agendamentos/{idAgendamento}/confirmar", agendamentosHandler.ConfirmarAgendamento)
+	r.Put("/agendamentos/{idAgendamento}/cancelar", agendamentosHandler.CancelarAgendamento)
+
+	// Agrupar rotas que pertencem a um salão específico
+	r.Route("/saloes/{idSalao}/servicos", func(r chi.Router) {
+		r.Post("/", servicosHandler.CreateServico)        // POST /saloes/{idSalao}/servicos
+		r.Get("/", servicosHandler.ListServicosBySalaoID) // GET /saloes/{idSalao}/servicos
+	})
+
+	saloesHandler := handlers.NewSaloesHandler(db)
+
+	r.Post("/saloes", saloesHandler.CreateSalao)
+
+	r.Get("/saloes/{idSalao}", saloesHandler.GetSalaoByID) // Método para buscar um salão pelo ID
+
 	r.Get("/healthcheck", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status": "ok"}`))
 	})
 
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = "8080"
 	}
