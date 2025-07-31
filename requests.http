@@ -57,3 +57,52 @@ PUT http://localhost:8080/agendamentos/1/confirmar
 ### 3. Dono do salão cancela (simulação do n8n)
 # Supondo que outro agendamento tenha criado o ID 2
 PUT http://localhost:8080/agendamentos/2/cancelar
+
+
+### --------------------------------------------------
+### TESTANDO O CONFLITO DE AGENDAMENTOS
+### --------------------------------------------------
+
+### PASSO 1 (OPCIONAL): Verifique a disponibilidade ANTES de criar o agendamento.
+# No resultado desta requisição, você deverá ver o horário "14:00" na lista.
+# Use um dia que seja um Sábado para bater com o nosso exemplo de horários.
+GET http://localhost:8080/saloes/1/disponibilidade?data=2025-08-16&servicoId=1
+
+
+### PASSO 2: Crie um agendamento para bloquear um horário específico.
+# Estamos criando um agendamento para o dia 16/08/2025 às 14:00.
+# O serviço 1 dura 45 minutos, então ele vai ocupar o horário de 14:00 até 14:45.
+POST http://localhost:8080/agendamentos
+Content-Type: application/json
+
+{
+    "salao_id": 1,
+    "servico_id": 1,
+    "cliente_nome": "Cliente Teste Conflito",
+    "cliente_contato": "5511955554444",
+    "data_hora_inicio": "2025-07-29T14:00:00Z"
+}
+
+
+### PASSO 3: Verifique a disponibilidade DEPOIS de criar o agendamento.
+# Agora, ao executar esta requisição novamente, a lista de horários disponíveis
+# NÃO DEVE MAIS CONTER o horário "14:00", nem os horários que começariam
+# antes mas terminariam depois das 14:00 (como 13:30 e 13:45).
+
+GET http://localhost:8080/saloes/1/disponibilidade?data=2025-07-29&servicoId=1
+
+
+### ===================================================
+### TESTE DIRETO PARA O WEBHOOK DO N8N
+### ===================================================
+
+POST https://webhook.automacao.free.nf/webhook/salao-teste
+Content-Type: application/json
+
+{
+  "agendamento_id": 999,
+  "cliente_nome": "Teste Direto do VSCode",
+  "servico_nome": "Teste de Conexão",
+  "data_hora_formatada": "Agora mesmo",
+  "whatsapp_notificacao": "5551993257923"
+}
