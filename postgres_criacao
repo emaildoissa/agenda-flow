@@ -1,0 +1,43 @@
+
+
+psql -U postgres
+CREATE DATABASE agenda_flow_db;
+CREATE USER agenda_flow_user WITH ENCRYPTED PASSWORD 'coloque_uma_senha_muito_forte_aqui';
+GRANT ALL PRIVILEGES ON DATABASE agenda_flow_db TO agenda_flow_user;
+
+psql -U agenda_flow_user -d agenda_flow_db
+
+-- Limpa as tabelas para garantir que estamos começando do zero com os dados de teste
+DELETE FROM agendamentos;
+DELETE FROM servicos;
+DELETE FROM funcionarios;
+DELETE FROM saloes;
+
+-- PASSO 1: Inserir o primeiro salão (nosso cliente SASS)
+-- O ID dele será '1'
+INSERT INTO saloes (nome_salao, email_proprietario, hash_senha, whatsapp_notificacao, horarios_funcionamento) VALUES
+(
+  'Barbearia Vintage',
+  'dono@barbeariavintage.com',
+  'senha_hash_exemplo_123',
+  '555193257923',
+  '{
+    "segunda": {"inicio": "09:00", "fim": "19:00", "pausas": [{"inicio": "12:00", "fim": "13:00"}]},
+    "terca":   {"inicio": "09:00", "fim": "19:00", "pausas": [{"inicio": "12:00", "fim": "13:00"}]},
+    "quarta":  {"inicio": "09:00", "fim": "19:00", "pausas": [{"inicio": "12:00", "fim": "13:00"}]},
+    "quinta":  {"inicio": "09:00", "fim": "19:00", "pausas": [{"inicio": "12:00", "fim": "13:00"}]},
+    "sexta":   {"inicio": "09:00", "fim": "20:00", "pausas": [{"inicio": "12:00", "fim": "13:00"}]},
+    "sabado":  {"inicio": "08:00", "fim": "17:00", "pausas": [{"inicio": "12:00", "fim": "13:00"}]}
+  }'::jsonb
+);
+
+-- PASSO 2: Inserir dois funcionários para o salão de ID = 1
+INSERT INTO funcionarios (salao_id, nome) VALUES
+(1, 'Roberto "Mão de Tesoura" Almeida'),
+(1, 'Juliana "A Rainha da Navalha" Costa');
+
+-- PASSO 3: Inserir três serviços para o salão de ID = 1
+INSERT INTO servicos (salao_id, nome, duracao_minutos, preco) VALUES
+(1, 'Corte Clássico', 45, 50.00),
+(1, 'Barba Terapia', 30, 40.00),
+(1, 'Corte & Barba (Combo)', 75, 85.00);
