@@ -89,7 +89,7 @@ Content-Type: application/json
 # NÃO DEVE MAIS CONTER o horário "14:00", nem os horários que começariam
 # antes mas terminariam depois das 14:00 (como 13:30 e 13:45).
 
-GET http://localhost:8080/saloes/1/disponibilidade?data=2025-07-29&servicoId=1
+GET http://localhost:8080/saloes/1/disponibilidade?data=2025-08-10&servicoId=2
 
 
 ### ===================================================
@@ -106,3 +106,5 @@ Content-Type: application/json
   "data_hora_formatada": "Agora mesmo",
   "whatsapp_notificacao": "5551993257923"
 }
+### Verificar a saúde do serviço
+GET http://localhost:8080/saloes/1/funcionarios

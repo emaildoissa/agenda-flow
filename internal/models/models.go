@@ -34,3 +34,8 @@ type Agendamento struct {
 	Status         string    `json:"status"`
 	CriadoEm       time.Time `json:"criado_em"`
 }
+type Funcionario struct {
+	ID    int    `json:"id"`
+	Nome  string `json:"nome"`
+	Ativo bool   `json:"ativo"`
+}

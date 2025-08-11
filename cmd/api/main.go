@@ -74,6 +74,11 @@ func main() {
 		r.Get("/", servicosHandler.ListServicosBySalaoID)
 	})
 
+	// --- ADICIONE ESTAS DUAS LINHAS NOVAMENTE ---
+	funcionariosHandler := handlers.NewFuncionariosHandler(db)
+	r.Get("/saloes/{idSalao}/funcionarios", funcionariosHandler.ListFuncionariosBySalaoID)
+	// --- FIM DA ADIÇÃO ---
+
 	agendamentosHandler := handlers.NewAgendamentosHandler(db, n8nURL)
 	r.Post("/agendamentos", agendamentosHandler.CreateAgendamento)
 	r.Put("/agendamentos/{idAgendamento}/confirmar", agendamentosHandler.ConfirmarAgendamento)
